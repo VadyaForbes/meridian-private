@@ -1,0 +1,4 @@
+import { NextRequest,NextResponse } from "next/server";import { timingSafeEqual } from "node:crypto";import { getIntegrations } from "@/lib/integrations/env";import { deliver } from "@/lib/integrations/service";
+export const runtime="nodejs";
+const valid=(given:string|null,expected:string|undefined)=>{if(!given||!expected)return false;const a=Buffer.from(given),b=Buffer.from(`Bearer ${expected}`);return a.length===b.length&&timingSafeEqual(a,b)};
+export async function GET(request:NextRequest){if(!valid(request.headers.get("authorization"),process.env.CRON_SECRET))return NextResponse.json({code:"unauthorized"},{status:401});try{const deps=getIntegrations(),items=await deps.store.list(25);let completed=0;for(const item of items){if(await deliver(item,deps))completed+=1}return NextResponse.json({processed:items.length,completed});}catch{return NextResponse.json({code:"temporary"},{status:503})}}

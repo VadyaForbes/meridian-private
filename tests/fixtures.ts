@@ -1,0 +1,2 @@
+import type { BuyerBrief } from "@/lib/brief-schema";
+export const brief:BuyerBrief={submissionId:"00000000-0000-4000-8000-000000000001",locale:"en",name:"Test Fixture",email:"test-fixture@example.invalid",phone:"+10000000000",residence:"Test Residence",destination:"Test Destination",goal:"home",budget:"Test Budget Range",timeline:"6-12",contact:"email",message:"Synthetic test message",consent:true,website:""};

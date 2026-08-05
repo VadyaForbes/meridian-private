@@ -1,0 +1,2 @@
+import type {Metadata} from "next";import {locales,type Locale} from "./i18n";
+export function pageMetadata(locale:Locale,path:string,title:string,description:string):Metadata{const base=process.env.NEXT_PUBLIC_SITE_URL||"https://meridianprivate.com",suffix=path?`/${path}`:"";return{title,description,alternates:{canonical:`${base}/${locale}${suffix}`,languages:Object.fromEntries(locales.map(l=>[l,`${base}/${l}${suffix}`]))},openGraph:{title,description,url:`${base}/${locale}${suffix}`,siteName:"Meridian Private",locale,type:"website"}}}

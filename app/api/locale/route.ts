@@ -1,0 +1,2 @@
+import {NextRequest,NextResponse} from "next/server";import {isLocale} from "@/lib/i18n";
+export async function POST(request:NextRequest){try{const body=await request.json() as {locale?:string};if(!body.locale||!isLocale(body.locale))return NextResponse.json({ok:false},{status:400});const response=NextResponse.json({ok:true});response.cookies.set("meridian-locale",body.locale,{httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",path:"/",maxAge:31536000});return response}catch{return NextResponse.json({ok:false},{status:400})}}

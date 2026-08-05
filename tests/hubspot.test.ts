@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest";import {mapBriefToHubSpot} from "@/lib/integrations/hubspot";import {brief} from "./fixtures";
+describe("HubSpot mapping",()=>{it("maps a brief to a lead contact without changing meaning",()=>{expect(mapBriefToHubSpot(brief)).toMatchObject({email:"test-fixture@example.invalid",firstname:"Test",lastname:"Fixture",lifecyclestage:"lead",hs_lead_status:"NEW",meridian_purchase_country:"Test Destination",meridian_purchase_goal:"home",meridian_locale:"en"})})});

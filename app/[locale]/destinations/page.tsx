@@ -1,0 +1,7 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getDictionary,isLocale } from "@/lib/i18n";
+import {pageMetadata} from "@/lib/seo";
+export async function generateMetadata({params}:{params:Promise<{locale:string}>}):Promise<Metadata>{const {locale}=await params;if(!isLocale(locale))return{};const d=getDictionary(locale);return pageMetadata(locale,"destinations",d.nav.destinations,d.destinations.intro);}
+export default async function Destinations({params}:{params:Promise<{locale:string}>}){const{locale}=await params;if(!isLocale(locale))notFound();const d=getDictionary(locale);return <><header className="page-hero"><div className="shell"><p className="eyebrow">{d.common.eyebrow}</p><h1 className="page-title">{d.destinations.title}</h1><p className="lead">{d.destinations.intro}</p></div></header><section className="section dark"><div className="shell"><div className="destination-grid">{Object.entries(d.destinations.countries).map(([slug,c],i)=><article className="destination" key={slug}><span className="eyebrow" style={{color:"#aebfb8"}}>{String(i+1).padStart(2,"0")}</span><h2 className="serif" style={{fontSize:"2rem",fontWeight:500}}>{c[0]}</h2><p>{c[1]}</p><Link className="text-link" href={`/${locale}/destinations/${slug}`}>{d.common.learn}</Link></article>)}</div><p className="notice" style={{marginTop:"3rem",color:"#c8d4cf",borderColor:"rgba(255,255,255,.2)"}}>{d.common.noListings}</p></div></section></>}
