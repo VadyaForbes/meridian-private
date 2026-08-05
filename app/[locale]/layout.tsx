@@ -4,7 +4,46 @@ import { Analytics } from "@/components/analytics";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { getDictionary, isLocale, locales } from "@/lib/i18n";
+import { getSiteUrl, pageMetadata } from "@/lib/seo";
 
-export function generateStaticParams(){return locales.map(locale=>({locale}));}
-export async function generateMetadata({params}:{params:Promise<{locale:string}>}):Promise<Metadata>{const {locale}=await params;if(!isLocale(locale))return{};const d=getDictionary(locale),base=process.env.NEXT_PUBLIC_SITE_URL||"https://meridianprivate.com";const languages={...Object.fromEntries(locales.map(l=>[l,`${base}/${l}`])),"x-default":`${base}/en`};return{title:{default:d.meta.title,template:`%s | Meridian Private`},description:d.meta.description,alternates:{canonical:`${base}/${locale}`,languages},openGraph:{title:d.meta.title,description:d.meta.description,url:`${base}/${locale}`,siteName:"Meridian Private",locale:locale==="en"?"en_US":locale==="ru"?"ru_RU":locale==="es"?"es_ES":"ar_AE",images:[{url:"/opengraph-image",width:1200,height:630,alt:"Meridian Private — International Property Advisory"}],type:"website"},twitter:{card:"summary_large_image",title:d.meta.title,description:d.meta.description,images:["/opengraph-image"]},robots:{index:true,follow:true}}}
-export default async function LocaleLayout({children,params}:{children:React.ReactNode;params:Promise<{locale:string}>}){const {locale}=await params;if(!isLocale(locale))notFound();const d=getDictionary(locale),base=process.env.NEXT_PUBLIC_SITE_URL||"https://meridianprivate.com";const jsonLd={"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${base}/#organization`,name:"Meridian Private",url:`${base}/${locale}`,description:d.meta.description,areaServed:"Worldwide"},{"@type":"WebSite","@id":`${base}/#website`,url:base,name:"Meridian Private",inLanguage:locale,publisher:{"@id":`${base}/#organization`}},{"@type":"Service","@id":`${base}/${locale}/#advisory`,name:d.meta.title,description:d.meta.description,serviceType:"International property buyer advisory and coordination",provider:{"@id":`${base}/#organization`},areaServed:"Worldwide"}]};return <div lang={locale} dir={locale==="ar"?"rtl":"ltr"}><a href="#main" className="skip">Skip to content</a><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/><Header locale={locale}/><main id="main">{children}</main><Footer locale={locale}/><Analytics/></div>}
+const skipLabels = {
+  en: "Skip to content",
+  ru: "Перейти к содержимому",
+  es: "Saltar al contenido",
+  ar: "الانتقال إلى المحتوى",
+} as const;
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const d = getDictionary(locale);
+  return {
+    ...pageMetadata(locale, "", d.meta.title, d.meta.description),
+    title: { default: d.meta.title, template: `%s | Meridian Private` },
+  };
+}
+
+export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const d = getDictionary(locale);
+  const base = getSiteUrl();
+  const organizationId = `${base}/#organization`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", "@id": organizationId, name: "Meridian Private", url: base, description: d.meta.description, email: d.contact.email, areaServed: "Worldwide" },
+      { "@type": "WebSite", "@id": `${base}/#website`, url: base, name: "Meridian Private", inLanguage: locales, publisher: { "@id": organizationId } },
+      { "@type": "Service", "@id": `${base}/${locale}/#advisory-service`, name: d.common.eyebrow, description: d.meta.description, serviceType: "International property advisory and buyer coordination", areaServed: "Worldwide", provider: { "@id": organizationId }, url: `${base}/${locale}`, inLanguage: locale },
+    ],
+  };
+  return <div lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
+    <a href="#main" className="skip">{skipLabels[locale]}</a>
+    <Header locale={locale}/><main id="main">{children}</main><Footer locale={locale}/><Analytics/>
+  </div>;
+}
