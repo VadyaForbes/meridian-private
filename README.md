@@ -7,7 +7,7 @@ Production-ready international real-estate advisory website built with Next.js A
 1. Copy `.env.example` to `.env.local` and fill the variables.
 2. Run `npm install` and `npm run dev`.
 
-The Buyer Brief fails closed unless durable Upstash storage, HubSpot, Resend, and encryption variables are configured. Leads are encrypted before being queued. Successful deliveries are removed; temporary provider failures remain retry-ready and are processed by the protected Vercel cron route.
+The Buyer Brief fails closed unless durable Upstash storage and encryption are configured. Leads are encrypted before delivery is attempted. HubSpot and Resend are independent channels: every configured channel is attempted, while unconfigured or temporarily failed deliveries remain in the durable queue for the protected Vercel cron route. The application never falls back to a volatile in-memory production queue.
 
 ## Verification
 
